@@ -1,3 +1,3 @@
 ## Live Demo
 
-![Website Demo](demo.mp4)
+![Website Demo](demo.gif)
