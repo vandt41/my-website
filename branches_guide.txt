@@ -1,0 +1,26 @@
+# 1. Fork on GitHub (click button)
+
+# 2. Clone your fork
+git clone https://github.com/YOU/project.git
+cd project
+
+# 3. Add original repo
+git remote add upstream https://github.com/THEM/project.git
+
+# 4. Create branch
+git checkout -b feature/add-search
+
+# 5. Make changes, commit
+git add .
+git commit -m "feat: add search functionality"
+
+# 6. Push to your fork
+git push origin feature/add-search
+
+# 7. Open GitHub → Create Pull Request
+
+# 8. After PR is merged, update your main
+git checkout main
+git fetch upstream
+git merge upstream/main
+git push origin main
