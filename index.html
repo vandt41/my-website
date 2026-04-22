@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/jpg" href="brian_art.jpg">
+    <link rel="stylesheet" href="style.css">
     <title>My first website</title>
 </head>
 
@@ -17,17 +18,24 @@
     </a>
     <br>
     <a href="form.html">
-        log in
+        register
     </a>
     <br>
-    <button onclick="doSomething()"
-        style="font-size: 25; background-color: grey; color: aliceblue; border-radius: 25px; border-color: blanchedalmond;">
-        click me
-    </button>
-    <pre id="text">        mot trong hang ty hightlight a tung lam dc</pre>
-    <script>
-        function doSomething() {
-            document.getElementById("text").innerHTML = '<video src="Counter-Strike 2 2024-02-24 14-09-22.mp4" width="500" controls autoplay muted loop></video>'
-        }
-    </script>
+    <a onclick="toggleLoginForm()">login</a>
+    <div id="login-container">
+        <form id="login-form">
+            <label for="username">Username: </label>
+            <input type="text" id="username" name="username" placeholder="Sponge_Bob" required><br>
+
+            <label for="password">Password: </label>
+            <input type="password" id="password" name="password" placeholder="123" required minlength="5"><br>
+
+            <input type="submit" value="submit">
+            <input type="reset" value="reset">
+        </form>
+    </div>
+    <br>
+
+
+    <script src="script.js"></script>
 </body>

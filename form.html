@@ -5,23 +5,28 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=500" , initial-scale=1.0">
     <title>form</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
     <a href="index.html">
         home
     </a>
-    <form action="index.php" method="post">
-        <label for="username">username </label>
-        <input type="text" id="username" placeholder="Sponge Bob" required><br>
+    <div id="register-form">
+        <form action="index.php" method="post">
+            <label for="username">username </label>
+            <input type="text" id="username" placeholder="Sponge_Bob" required><br>
 
-        <label for="password">password </label>
-        <input type="password" id="password" placeholder="123" required minlength="5"><br>
-        <label for="email">email </label>
-        <input type="email" id="email" placeholder="Spongebob@gmail.com" required><br>
-        <input type="submit" value="submit"><br>
-        <input type="reset"><br>
-    </form>
+            <label for="password">password </label>
+            <input type="password" id="password" placeholder="123" required minlength="5"><br>
+            <label for="email">email </label>
+            <input type="email" id="email" placeholder="Spongebob@gmail.com" required><br>
+            <input type="submit" value="submit"><br>
+            <input type="reset" value="reset"><br>
+        </form>
+    </div>
+
+    <script src="script.js"></script>
 </body>
 
 </html>
