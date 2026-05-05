@@ -3,39 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" type="image/jpg" href="brian_art.jpg">
     <link rel="stylesheet" href="style.css">
     <title>My first website</title>
 </head>
 
 <body>
-    <a href="https://www.google.com/">
-        google
-    </a>
-    <br>
-    <a href="about.html">
-        about me
-    </a>
-    <br>
-    <a href="form.html">
-        register
-    </a>
-    <br>
-    <a onclick="toggleLoginForm()">login</a>
-    <div id="login-container">
-        <form id="login-form">
-            <label for="username">Username: </label>
-            <input type="text" id="username" name="username" placeholder="Sponge_Bob" required><br>
-
-            <label for="password">Password: </label>
-            <input type="password" id="password" name="password" placeholder="123" required minlength="5"><br>
-
-            <input type="submit" value="submit">
-            <input type="reset" value="reset">
-        </form>
+    <div id="navigate">
+        <a href="https://www.google.com/">google</a><br>
+        <a href="about.html">about me</a><br>
+        <a href="register.html">register</a><br>
+        <a href="login.html">login</a> <br>
     </div>
     <br>
-
-
-    <script src="script.js"></script>
+    <div id="test">
+        <h1 id="myH1"></h1>
+        <p id="myP"></p>
+    </div>
+    <script src="index.js"></script>
 </body>

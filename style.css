@@ -1,22 +1,86 @@
+@font-face {
+    font-family: 'MyFont';
+    src: url('./fonts/JetBrainsMono-Regular.woff2') format('woff2');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
 body {
+    zoom: 150%;
     background-color: aliceblue;
+    font-family: 'MyFont';
+    font-size: 1.5em;
 }
 
-#login-container {
-    display: none;
-    margin-top: 20px;
-    padding: 20px;
-    border: 1px solid #ccc;
+#registerForm {
+    display: grid;
+    gap: 3px;
     max-width: 300px;
+    margin: 0;
+    padding: 20px;
 }
 
-#login-form {
-    background: white;
+#regBtn {
+    display: grid;
+    gap: 3px;
+    max-width: 100px;
+    height: 50px;
 }
 
-#login-form input {
-    margin: 5px 0;
-    padding: 5px;
+#registerForm label {
+    text-align: left;
+    padding-left: 0;
+    align-self: center;
+}
+
+#registerForm input {
+    padding: 8px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Message styles */
+.message {
+    padding: 10px;
+    margin-bottom: 15px;
+    border-radius: 5px;
+    display: none;
+}
+
+.message.error {
+    background-color: #ffebee;
+    color: #c62828;
+    border: 1px solid #ef9a9a;
+}
+
+.message.success {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+    border: 1px solid #a5d6a7;
+}
+
+/* Or put buttons side by side */
+.buttons {
+    gap: 10px;
+    padding: 10px 10px;
+    border-radius: 0px;
+}
+
+#countBtn {
+    text-align: center;
+}
+
+#loginBtn {
+
+    max-width: 100;
+}
+
+#loginForm input {
+    padding: 8px;
+    width: 100%;
+    box-sizing: border-box;
+    max-width: 300px;
 }
 
 a {
@@ -25,7 +89,6 @@ a {
     text-decoration: underline;
 }
 
-/* Button style - NO display:none */
 #highlight_button {
     border: none;
     cursor: pointer;
@@ -38,4 +101,15 @@ a {
 
 #vid {
     background-color: #0056b3;
+}
+
+#navigate {
+    margin: 0;
+    align-items: baseline;
+}
+
+#countLabel {
+    display: block;
+    text-align: center;
+    font-size: 5em;
 }

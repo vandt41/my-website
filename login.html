@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - Create Account</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <a href="index.html">🏠 home</a>
+
+    <h2>Login</h2>
+
+    <!-- Message display area -->
+    <div id="error-message" class="message error"></div>
+    <div id="success-message" class="message success"></div>
+
+    <form id="loginForm">
+        <label for="username">Username: </label>
+        <input type="text" id="username" name="username" placeholder="Sponge_Bob" required minlength="3"><br>
+        <label for="password">Password: </label>
+        <input type="password" id="password" name="password" placeholder="123" required minlength="5"><br>
+        <input type="submit" value="Login" id="loginBtn">
+        <a href="forgotPW.html"> Forgot password?</a>
+    </form>
+    <p>Doesn't have an account? <a href="register.html">Register</a></p>
+    <label id="countLabel">0</label>
+    <div id="countBtn" class="buttons">
+        <button id="IncBtn">+</button>
+        <button id="countStartBtn">Start</button>
+        <button id="countResetBtn">Reset</button>
+        <button id="countStopBtn">Stop</button>
+    </div>
+    <script src="login.js"></script>
+</body>
+
+</html>

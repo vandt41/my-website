@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - Create Account</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <a href="index.html">🏠 home</a>
+
+    <div id="register-form">
+        <h2>Create New Account</h2>
+        <!-- Message display area -->
+        <div id="error-message" class="message error"></div>
+        <div id="success-message" class="message success"></div>
+        <form>
+            <div id="registerForm">
+                <label for="username">Username: </label>
+                <input type="text" id="username" required minlength="3"><br>
+                <label for="email">Email: </label>
+                <input type="email" id="email" required><br>
+                <label for="password">Password: </label>
+                <input type="password" id="password" placeholder="123" required minlength="3"><br>
+                <label for="confirm-password">Confirm Password: </label>
+                <input type="password" id="confirm_password" required>
+            </div>
+            <div id="regBtn">
+                <input type="submit" id="submitBtn" value="Register">
+                <input type="reset" value="Clear">
+            </div>
+        </form>
+        <p>Already have an account? <a href="login.html">login</a></p>
+    </div>
+
+    <script src="register.js"></script>
+</body>
+
+</html>

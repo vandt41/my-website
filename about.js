@@ -9,7 +9,7 @@ function toggleLoginForm() {
 }
 
 function showHighlight() {
-    const highlightButton = document.getElementById("highlight_button");
+    const highlightButton = document.getElementById("highlight-button");
 
     highlightButton.innerHTML = `
         <video src="cs2.mp4" width="500" controls autoplay muted loop></video>
