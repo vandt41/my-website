@@ -9,7 +9,7 @@ const code = function () {
     localStorage.setItem("countValue", count);
 }
 
-let count;
+let count, lap1, lap2, lap3;
 if (localStorage.getItem("countValue")) {
     count = +localStorage.getItem("countValue");
     countLabel.textContent = count;

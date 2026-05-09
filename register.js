@@ -12,3 +12,7 @@ document.getElementById('submitBtn').onclick = function () {
     }
 }
 
+function isValidEmail(Email) {
+    return Email.includes('@');
+}
+console.log(isValidEmail("brocode@gmail.com"));
