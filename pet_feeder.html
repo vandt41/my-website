@@ -19,9 +19,8 @@
         <button id="feed" disabled>2. Feed Now</button>
         <button id="camera" disabled>3. Open Camera</button>
 
-
         <div class="info-box">
-            <p><strong>Status:</strong> <span id="status">Disconnected</span></p>
+            <p><strong>MQTT Status:</strong> <span id="status">Disconnected</span></p>
             <p><strong>Feeder:</strong> <span id="feederStatus">Offline</span></p>
             <p><strong>Last Fed:</strong> <span id="lastFed">Never</span></p>
             <p><strong>Food Level:</strong> <span id="foodLevel">Unknown</span></p>
@@ -37,7 +36,6 @@
         const feederStatusEl = document.getElementById('feederStatus');
         const lastFedEl = document.getElementById('lastFed');
         const foodLevelEl = document.getElementById('foodLevel');
-
         const connectBtn = document.getElementById('connect');
         const feedBtn = document.getElementById('feed');
         const cameraBtn = document.getElementById('camera');
@@ -52,14 +50,14 @@
         connectBtn.onclick = function () {
             if (client) client.end();
 
-            client = mqtt.connect('ws://127.0.0.1:9001', {
+            client = mqtt.connect('ws://10.0.57.241:9001', {   // ← Better to use your PC IP
                 username: "petfeeder",
                 password: "123",
                 reconnectPeriod: 3000
             });
 
             client.on('connect', () => {
-                statusEl.textContent = "Status: Connected ✅";
+                statusEl.textContent = "connected ✅";
                 statusEl.style.color = "green";
                 feedBtn.disabled = false;
                 cameraBtn.disabled = false;
@@ -74,7 +72,8 @@
 
                 if (topic === "petfeeder/status" || topic === "petfeeder/status/feeder") {
                     feederStatusEl.textContent = msg;
-
+                    feederStatusEl.style.color = "green";
+                    feederStatusEl.textContent = feederStatusEl.textContent + " ✅";
                     if (msg.toLowerCase().includes("dispensed") || msg.toLowerCase().includes("feed")) {
                         lastFedTime = Date.now();
                         updateLastFed();
@@ -88,7 +87,7 @@
 
             client.on('error', (err) => {
                 console.error(err);
-                statusEl.textContent = "Status: Connection Error ❌";
+                statusEl.textContent = "Connection Error ❌";
                 statusEl.style.color = "red";
             });
         };
@@ -96,11 +95,7 @@
         // Feed button
         feedBtn.onclick = () => {
             if (client && client.connected) {
-                const payload = {
-                    action: "feed",
-                    amount: 1,
-                    timestamp: Date.now()
-                };
+                const payload = { action: "feed", amount: 1, timestamp: Date.now() };
                 client.publish('petfeeder/commands', JSON.stringify(payload), { qos: 1 });
             }
         };
@@ -108,15 +103,11 @@
         // Camera button
         cameraBtn.onclick = () => {
             if (client && client.connected) {
-                const payload = {
-                    action: "camera_on",
-                    duration: 30
-                };
+                const payload = { action: "camera_on", duration: 30 };
                 client.publish('petfeeder/commands', JSON.stringify(payload), { qos: 1 });
             }
         };
 
-        // Auto update "Last Fed" every 30 seconds
         setInterval(updateLastFed, 30000);
     </script>
 </body>
