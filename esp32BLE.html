@@ -1,202 +1,189 @@
-<!--
-    Rui Santos
-    Complete project details at https://RandomNerdTutorials.com/esp32-web-bluetooth/
-  
-    Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files.
-    The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-  -->
-  
-  <!DOCTYPE html>
-  <html>
-  <head>
-      <title>ESP32 Web BLE App</title>
-      <meta name="viewport" content="width=device-width, initial-scale=1">
-      <link rel="icon" type="image/png" href="">
-  </head>
-  <body>
-    <h1>ESP32 Web BLE Application</h1>
-    <button id="connectBleButton">Connect to BLE Device</button>
-    <button id="disconnectBleButton">Disconnect BLE Device</button>
-    <p>BLE state: <strong><span id="bleState" style="color:#d13a30;">Disconnected</span></strong></p>
-    <h2>Fetched Value</h2>
-    <p><span id="valueContainer">NaN</span></p>
-    <p>Last reading: <span id="timestamp"></span></p>
-    <h2>Control GPIO 2</h2>
-    <button id="onButton">ON</button>
-    <button id="offButton">OFF</button>
-    <p>Last value sent: <span id="valueSent"></span></p>
-    <p><a href="https://randomnerdtutorials.com/">Created by RandomNerdTutorials.com</a></p>
-    <p><a href="https://RandomNerdTutorials.com/esp32-web-bluetooth/">Read the full project here.</a></p>
-  </body>
-  <script>
-      // DOM Elements
-      const connectButton = document.getElementById('connectBleButton');
-      const disconnectButton = document.getElementById('disconnectBleButton');
-      const onButton = document.getElementById('onButton');
-      const offButton = document.getElementById('offButton');
-      const retrievedValue = document.getElementById('valueContainer');
-      const latestValueSent = document.getElementById('valueSent');
-      const bleStateContainer = document.getElementById('bleState');
-      const timestampContainer = document.getElementById('timestamp');
-  
-      //Define BLE Device Specs
-      var deviceName ='ESP32';
-      var bleService = '19b10000-e8f2-537e-4f6c-d104768a1214';
-      var ledCharacteristic = '19b10002-e8f2-537e-4f6c-d104768a1214';
-      var sensorCharacteristic= '19b10001-e8f2-537e-4f6c-d104768a1214';
-  
-      //Global Variables to Handle Bluetooth
-      var bleServer;
-      var bleServiceFound;
-      var sensorCharacteristicFound;
-  
-      // Connect Button (search for BLE Devices only if BLE is available)
-      connectButton.addEventListener('click', (event) => {
-          if (isWebBluetoothEnabled()){
-              connectToDevice();
-          }
-      });
-  
-      // Disconnect Button
-      disconnectButton.addEventListener('click', disconnectDevice);
-  
-      // Write to the ESP32 LED Characteristic
-      onButton.addEventListener('click', () => writeOnCharacteristic(1));
-      offButton.addEventListener('click', () => writeOnCharacteristic(0));
-  
-      // Check if BLE is available in your Browser
-      function isWebBluetoothEnabled() {
-          if (!navigator.bluetooth) {
-              console.log("Web Bluetooth API is not available in this browser!");
-              bleStateContainer.innerHTML = "Web Bluetooth API is not available in this browser!";
-              return false
-          }
-          console.log('Web Bluetooth API supported in this browser.');
-          return true
-      }
-  
-      // Connect to BLE Device and Enable Notifications
-      function connectToDevice(){
-          console.log('Initializing Bluetooth...');
-          navigator.bluetooth.requestDevice({
-              filters: [{name: deviceName}],
-              optionalServices: [bleService]
-          })
-          .then(device => {
-              console.log('Device Selected:', device.name);
-              bleStateContainer.innerHTML = 'Connected to device ' + device.name;
-              bleStateContainer.style.color = "#24af37";
-              device.addEventListener('gattserverdisconnected', onDisconnected);
-              return device.gatt.connect();
-          })
-          .then(gattServer =>{
-              bleServer = gattServer;
-              console.log("Connected to GATT Server");
-              return bleServer.getPrimaryService(bleService);
-          })
-          .then(service => {
-              bleServiceFound = service;
-              console.log("Service discovered:", service.uuid);
-              return service.getCharacteristic(sensorCharacteristic);
-          })
-          .then(characteristic => {
-              console.log("Characteristic discovered:", characteristic.uuid);
-              sensorCharacteristicFound = characteristic;
-              characteristic.addEventListener('characteristicvaluechanged', handleCharacteristicChange);
-              characteristic.startNotifications();
-              console.log("Notifications Started.");
-              return characteristic.readValue();
-          })
-          .then(value => {
-              console.log("Read value: ", value);
-              const decodedValue = new TextDecoder().decode(value);
-              console.log("Decoded value: ", decodedValue);
-              retrievedValue.innerHTML = decodedValue;
-          })
-          .catch(error => {
-              console.log('Error: ', error);
-          })
-      }
-  
-      function onDisconnected(event){
-          console.log('Device Disconnected:', event.target.device.name);
-          bleStateContainer.innerHTML = "Device disconnected";
-          bleStateContainer.style.color = "#d13a30";
-  
-          connectToDevice();
-      }
-  
-      function handleCharacteristicChange(event){
-          const newValueReceived = new TextDecoder().decode(event.target.value);
-          console.log("Characteristic value changed: ", newValueReceived);
-          retrievedValue.innerHTML = newValueReceived;
-          timestampContainer.innerHTML = getDateTime();
-      }
-  
-      function writeOnCharacteristic(value){
-          if (bleServer && bleServer.connected) {
-              bleServiceFound.getCharacteristic(ledCharacteristic)
-              .then(characteristic => {
-                  console.log("Found the LED characteristic: ", characteristic.uuid);
-                  const data = new Uint8Array([value]);
-                  return characteristic.writeValue(data);
-              })
-              .then(() => {
-                  latestValueSent.innerHTML = value;
-                  console.log("Value written to LEDcharacteristic:", value);
-              })
-              .catch(error => {
-                  console.error("Error writing to the LED characteristic: ", error);
-              });
-          } else {
-              console.error ("Bluetooth is not connected. Cannot write to characteristic.")
-              window.alert("Bluetooth is not connected. Cannot write to characteristic. \n Connect to BLE first!")
-          }
-      }
-  
-      function disconnectDevice() {
-          console.log("Disconnect Device.");
-          if (bleServer && bleServer.connected) {
-              if (sensorCharacteristicFound) {
-                  sensorCharacteristicFound.stopNotifications()
-                      .then(() => {
-                          console.log("Notifications Stopped");
-                          return bleServer.disconnect();
-                      })
-                      .then(() => {
-                          console.log("Device Disconnected");
-                          bleStateContainer.innerHTML = "Device Disconnected";
-                          bleStateContainer.style.color = "#d13a30";
-  
-                      })
-                      .catch(error => {
-                          console.log("An error occurred:", error);
-                      });
-              } else {
-                  console.log("No characteristic found to disconnect.");
-              }
-          } else {
-              // Throw an error if Bluetooth is not connected
-              console.error("Bluetooth is not connected.");
-              window.alert("Bluetooth is not connected.")
-          }
-      }
-  
-      function getDateTime() {
-          var currentdate = new Date();
-          var day = ("00" + currentdate.getDate()).slice(-2); // Convert day to string and slice
-          var month = ("00" + (currentdate.getMonth() + 1)).slice(-2);
-          var year = currentdate.getFullYear();
-          var hours = ("00" + currentdate.getHours()).slice(-2);
-          var minutes = ("00" + currentdate.getMinutes()).slice(-2);
-          var seconds = ("00" + currentdate.getSeconds()).slice(-2);
-  
-          var datetime = day + "/" + month + "/" + year + " at " + hours + ":" + minutes + ":" + seconds;
-          return datetime;
-      }
-  
-  
-  </script>
-  
-  </html>
-  
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ESP32 WiFi Config via BLE</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        .container {
+            border: 2px solid #4CAF50;
+            border-radius: 10px;
+            padding: 20px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .status {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+        }
+        .connected {
+            color: green;
+        }
+        .disconnected {
+            color: red;
+        }
+        .log {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>ESP32 WiFi Configuration</h2>
+        
+        <button id="connectBtn">Connect to ESP32</button>
+        
+        <div id="controls" style="display:none;">
+            <h3>WiFi Credentials</h3>
+            <input type="text" id="ssid" placeholder="WiFi SSID (Network Name)">
+            <input type="password" id="password" placeholder="WiFi Password">
+            <button id="sendBtn">Send Credentials</button>
+        </div>
+        
+        <div class="status">
+            <strong>Status:</strong> <span id="status">Disconnected</span>
+        </div>
+        
+        <div class="log">
+            <strong>BLE Log:</strong><br>
+            <div id="log"></div>
+        </div>
+    </div>
+
+    <script>
+        let device;
+        let server;
+        let service;
+        let ssidCharacteristic;
+        let passwordCharacteristic;
+        
+        const SERVICE_UUID = "19b10000-e8f2-537e-4f6c-d104768a1214";
+        const SSID_CHAR_UUID = "19b10001-e8f2-537e-4f6c-d104768a1214";
+        const PASSWORD_CHAR_UUID = "19b10002-e8f2-537e-4f6c-d104768a1214";
+        
+        const connectBtn = document.getElementById('connectBtn');
+        const sendBtn = document.getElementById('sendBtn');
+        const ssidInput = document.getElementById('ssid');
+        const passwordInput = document.getElementById('password');
+        const controls = document.getElementById('controls');
+        const statusSpan = document.getElementById('status');
+        const logDiv = document.getElementById('log');
+        
+        function addLog(message) {
+            const timestamp = new Date().toLocaleTimeString();
+            logDiv.innerHTML += `<div>[${timestamp}] ${message}</div>`;
+            logDiv.scrollTop = logDiv.scrollHeight;
+            console.log(message);
+        }
+        
+        connectBtn.addEventListener('click', connectToESP32);
+        sendBtn.addEventListener('click', sendCredentials);
+        
+        async function connectToESP32() {
+            try {
+                addLog('Requesting BLE device...');
+                statusSpan.textContent = 'Connecting...';
+                
+                device = await navigator.bluetooth.requestDevice({
+                    filters: [{ name: 'PetFeeder' }],
+                    optionalServices: [SERVICE_UUID]
+                });
+                
+                addLog(`Connected to device: ${device.name}`);
+                
+                server = await device.gatt.connect();
+                addLog('GATT server connected');
+                statusSpan.textContent = 'Connected to ESP32';
+                statusSpan.className = 'connected';
+                
+                addLog(`Getting primary service: ${SERVICE_UUID}`);
+                service = await server.getPrimaryService(SERVICE_UUID);
+                addLog('Service found');
+                
+                // Get characteristics
+                addLog('Getting characteristics...');
+                ssidCharacteristic = await service.getCharacteristic(SSID_CHAR_UUID);
+                addLog('✓ SSID characteristic found');
+                
+                passwordCharacteristic = await service.getCharacteristic(PASSWORD_CHAR_UUID);
+                addLog('✓ Password characteristic found');
+                
+                controls.style.display = 'block';
+                connectBtn.disabled = true;
+                connectBtn.textContent = 'Connected';
+                
+                addLog('✅ Ready to receive credentials!');
+                
+            } catch (error) {
+                addLog(`❌ Error: ${error.message}`);
+                statusSpan.textContent = 'Connection failed: ' + error.message;
+                statusSpan.className = 'disconnected';
+            }
+        }
+        
+        async function sendCredentials() {
+            const ssid = ssidInput.value;
+            const password = passwordInput.value;
+            
+            if (!ssid || !password) {
+                addLog('Please enter both SSID and Password');
+                return;
+            }
+            
+            try {
+                addLog(`Sending SSID: ${ssid}`);
+                const encoder = new TextEncoder();
+                await ssidCharacteristic.writeValue(encoder.encode(ssid));
+                addLog('✓ SSID sent');
+                
+                addLog('Sending password...');
+                await passwordCharacteristic.writeValue(encoder.encode(password));
+                addLog('✓ Password sent');
+                
+                addLog('✅ Credentials sent successfully!');
+                statusSpan.textContent = 'Credentials sent!';
+                
+                // Clear inputs
+                ssidInput.value = '';
+                passwordInput.value = '';
+                
+            } catch (error) {
+                addLog(`❌ Send error: ${error.message}`);
+                statusSpan.textContent = 'Failed to send: ' + error.message;
+            }
+        }
+    </script>
+</body>
+</html>
