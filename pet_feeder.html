@@ -1,67 +1,130 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pet Feeder Control</title>
+    <title>Pet Feeder</title>
+
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
-    <a href="index.html">🏠 home</a>
 
-    <div>
-        <h3>🐾 Pet Feeder Control</h3>
+<a href="index.html">🏠 Home</a>
 
-        <button id="connect">1. Connect to Feeder</button>
-        <br><br>
-        <button id="feed" disabled>2. Feed Now</button>
-        <button id="camera" disabled>3. Open Camera</button>
+<div>
 
-        <div class="info-box">
-            <p><strong>Feeder:</strong> <span id="feederStatus">Offline</span></p>
-            <p><strong>Last Fed:</strong> <span id="lastFed">Never</span></p>
-            <p><strong>Food Level:</strong> <span id="foodLevel">Unknown</span></p>
-        </div>
-    </div>
+<h2>🐾 Pet Feeder Control</h2>
 
-    <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
-    <script>
-        let client = null;
-        let lastFedTime = null;
+<button id="connect">Connect</button>
 
-        const statusEl = document.getElementById('status');
-        const feederStatusEl = document.getElementById('feederStatus');
-        const lastFedEl = document.getElementById('lastFed');
-        const foodLevelEl = document.getElementById('foodLevel');
-        const feedBtn = document.getElementById('feed');
-        const cameraBtn = document.getElementById('camera');
+<br><br>
 
-        function updateLastFed() {
-            if (!lastFedTime) return;
-            const minutesAgo = Math.floor((Date.now() - lastFedTime) / 60000);
-            lastFedEl.textContent = minutesAgo < 1 ? "Just now" : `${minutesAgo} minute${minutesAgo > 1 ? 's' : ''} ago`;
-        }
+<button id="feed" disabled>Feed Now</button>
 
-        // Feed button
-        feedBtn.onclick = () => {
-            if (client && client.connected) {
-                const payload = { action: "feed", amount: 1, timestamp: Date.now() };
-                client.publish('petfeeder/commands', JSON.stringify(payload), { qos: 1 });
-            }
-        };
+<button id="camera" disabled>Camera</button>
 
-        // Camera button
-        cameraBtn.onclick = () => {
-            if (client && client.connected) {
-                const payload = { action: "camera_on", duration: 30 };
-                client.publish('petfeeder/commands', JSON.stringify(payload), { qos: 1 });
-            }
-        };
+<div class="info-box">
 
-        setInterval(updateLastFed, 30000);
-    </script>
+<p><strong>Status:</strong> <span id="feederStatus">Offline</span></p>
+
+<p><strong>Food Level:</strong> <span id="foodLevel">Unknown</span></p>
+
+<p><strong>Last Fed:</strong> <span id="lastFed">Never</span></p>
+
+</div>
+
+</div>
+
+<script>
+
+const ESP32_IP = "192.168.1.123";      // Change to your ESP32 IP
+
+const feederStatus =
+document.getElementById("feederStatus");
+
+const foodLevel =
+document.getElementById("foodLevel");
+
+const lastFed =
+document.getElementById("lastFed");
+
+const feedBtn =
+document.getElementById("feed");
+
+const cameraBtn =
+document.getElementById("camera");
+
+
+document.getElementById("connect").onclick =
+async function()
+{
+    try
+    {
+        const response =
+        await fetch(`http://${ESP32_IP}/status`);
+
+        if(!response.ok)
+            throw new Error();
+
+        const data =
+        await response.json();
+
+        feederStatus.textContent =
+        "Online";
+
+        foodLevel.textContent =
+        data.foodLevel + "%";
+
+        lastFed.textContent =
+        data.lastFed;
+
+        feedBtn.disabled = false;
+        cameraBtn.disabled = false;
+    }
+    catch(e)
+    {
+        feederStatus.textContent =
+        "Offline";
+
+        alert("Cannot connect to ESP32");
+    }
+};
+
+
+feedBtn.onclick =
+async function()
+{
+    const response =
+    await fetch(`http://${ESP32_IP}/feed`,
+    {
+        method:"POST"
+    });
+
+    if(response.ok)
+    {
+        lastFed.textContent =
+        "Just now";
+
+        alert("Feeding...");
+    }
+    else
+    {
+        alert("Feed failed");
+    }
+};
+
+
+cameraBtn.onclick =
+async function()
+{
+    await fetch(`http://${ESP32_IP}/camera`,
+    {
+        method:"POST"
+    });
+};
+
+</script>
+
 </body>
-
 </html>
