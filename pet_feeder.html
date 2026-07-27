@@ -20,7 +20,6 @@
         <button id="camera" disabled>3. Open Camera</button>
 
         <div class="info-box">
-            <p><strong>MQTT Status:</strong> <span id="status">Disconnected</span></p>
             <p><strong>Feeder:</strong> <span id="feederStatus">Offline</span></p>
             <p><strong>Last Fed:</strong> <span id="lastFed">Never</span></p>
             <p><strong>Food Level:</strong> <span id="foodLevel">Unknown</span></p>
@@ -36,7 +35,6 @@
         const feederStatusEl = document.getElementById('feederStatus');
         const lastFedEl = document.getElementById('lastFed');
         const foodLevelEl = document.getElementById('foodLevel');
-        const connectBtn = document.getElementById('connect');
         const feedBtn = document.getElementById('feed');
         const cameraBtn = document.getElementById('camera');
 
@@ -45,52 +43,6 @@
             const minutesAgo = Math.floor((Date.now() - lastFedTime) / 60000);
             lastFedEl.textContent = minutesAgo < 1 ? "Just now" : `${minutesAgo} minute${minutesAgo > 1 ? 's' : ''} ago`;
         }
-
-        // Connect button
-        connectBtn.onclick = function () {
-            if (client) client.end();
-
-            client = mqtt.connect('ws://10.0.57.241:9001', {   // ← Better to use your PC IP
-                username: "petfeeder",
-                password: "123",
-                reconnectPeriod: 3000
-            });
-
-            client.on('connect', () => {
-                statusEl.textContent = "connected ✅";
-                statusEl.style.color = "green";
-                feedBtn.disabled = false;
-                cameraBtn.disabled = false;
-                connectBtn.disabled = true;
-
-                client.subscribe('petfeeder/status/#', { qos: 1 });
-            });
-
-            client.on('message', (topic, message) => {
-                const msg = message.toString();
-                console.log(`[${topic}] ${msg}`);
-
-                if (topic === "petfeeder/status" || topic === "petfeeder/status/feeder") {
-                    feederStatusEl.textContent = msg;
-                    feederStatusEl.style.color = "green";
-                    feederStatusEl.textContent = feederStatusEl.textContent + " ✅";
-                    if (msg.toLowerCase().includes("dispensed") || msg.toLowerCase().includes("feed")) {
-                        lastFedTime = Date.now();
-                        updateLastFed();
-                    }
-                }
-
-                if (topic === "petfeeder/status/food") {
-                    foodLevelEl.textContent = msg;
-                }
-            });
-
-            client.on('error', (err) => {
-                console.error(err);
-                statusEl.textContent = "Connection Error ❌";
-                statusEl.style.color = "red";
-            });
-        };
 
         // Feed button
         feedBtn.onclick = () => {

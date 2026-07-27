@@ -1,28 +1,46 @@
 let feederCharacteristic;
 
-document.getElementById('connect').addEventListener('click', async () => {
-    try {
-        const device = await navigator.bluetooth.requestDevice({
-            acceptAllDevices: true,
-            optionalServices: ['594badb3-622e-4879-af44-495aadc913be'] // Replace with your UUID
+document.getElementById("connect").onclick = async () => {
+
+    try
+    {
+        const response =
+            await fetch(`http://${ESP32_IP}/status`);
+
+        if(!response.ok)
+            throw new Error();
+
+        const status = await response.json();
+
+        feederStatusEl.textContent = "Online";
+
+        feedBtn.disabled = false;
+        cameraBtn.disabled = false;
+
+        foodLevelEl.textContent = status.foodLevel + "%";
+        lastFedEl.textContent = status.lastFed;
+    }
+    catch(e)
+    {
+        feederStatusEl.textContent = "Offline";
+    }
+};
+
+feedBtn.onclick = async () => {
+
+    const response =
+        await fetch(`http://${ESP32_IP}/feed`,
+        {
+            method:"POST"
         });
-        const server = await device.gatt.connect();
-        const service = await server.getPrimaryService('594badb3-622e-4879-af44-495aadc913be');
-        feederCharacteristic = await service.getCharacteristic('594badb3-622e-4879-af44-495aadc913be');
 
-        document.getElementById('status').innerText = "Status: Connected!";
-        document.getElementById('feed').disabled = false;
-    } catch (err) {
-        console.error(err);
-    }
-});
+    if(response.ok)
+    {
+        lastFedTime = Date.now();
 
-document.getElementById('feed').addEventListener('click', async () => {
-    if (feederCharacteristic) {
-        await feederCharacteristic.writeValue(new Uint8Array([1]));
-        alert("Food Dispensed!");
+        lastFedEl.textContent = "Just now";
     }
-});
+};
 function openCamera() {
 
 }
