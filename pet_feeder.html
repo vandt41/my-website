@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,121 +11,128 @@
 
 <body>
 
-<a href="index.html">🏠 Home</a>
+    <a href="index.html">🏠 Home</a>
 
-<div>
+    <div>
 
-<h2>🐾 Pet Feeder Control</h2>
+        <h2>🐾 Pet Feeder Control</h2>
 
-<button id="connect">Connect</button>
+        <button id="connect">Connect</button>
+        <button id="feed" disabled>Feed Now</button>
 
-<br><br>
+        <button id="camera" disabled>Camera</button>
 
-<button id="feed" disabled>Feed Now</button>
+        <div class="info-box">
+            <p><strong>MCU:</strong> <span id="feederStatus">STM32F407VG-DISC1</span></p>
 
-<button id="camera" disabled>Camera</button>
+            <p><strong>FEEDER:</strong> <span id="servoStatus">OFFLINE</span></p>
 
-<div class="info-box">
+            <p><strong>ESP32:</strong> <span id="esp32Status">DISCONNECTED</span></p>
 
-<p><strong>Status:</strong> <span id="feederStatus">Offline</span></p>
+            <p><strong>Wifi Status:</strong> <span id="status">DISCONNECTED</span></p>
 
-<p><strong>Food Level:</strong> <span id="foodLevel">Unknown</span></p>
+            <p><strong>UART:</strong> <span id="uartStatus">NOT READY</span></p>
 
-<p><strong>Last Fed:</strong> <span id="lastFed">Never</span></p>
+            <p><strong>RTC:</strong> <span id="rtcStatus">NOT READY</span></p>
 
-</div>
+            <p><strong>SERVO:</strong> <span id="servoStatus">NOT READY</span></p>
 
-</div>
+            <p><strong>Food Level:</strong> <span id="foodLevel">Unknown</span></p>
 
-<script>
+            <p><strong>Last Fed:</strong> <span id="lastFed">Never</span></p>
 
-const ESP32_IP = "192.168.1.6";      // Change to your ESP32 IP
+            <p><strong>Next Feed:</strong> <span id="nextFeed">Never</span></p>
 
-const feederStatus =
-document.getElementById("feederStatus");
-
-const foodLevel =
-document.getElementById("foodLevel");
-
-const lastFed =
-document.getElementById("lastFed");
-
-const feedBtn =
-document.getElementById("feed");
-
-const cameraBtn =
-document.getElementById("camera");
+            <p><strong>Camera:</strong> <span id="cameraStatus">NOT READY</span></p>
 
 
-document.getElementById("connect").onclick =
-async function()
-{
-    try
-    {
-        const response =
-        await fetch(`http://${ESP32_IP}/status`);
+        </div>
 
-        if(!response.ok)
-            throw new Error();
+    </div>
 
-        const data =
-        await response.json();
+    <script>
 
-        feederStatus.textContent =
-        "Online";
+        const ESP32_IP = "192.168.1.6";      // Change to your ESP32 IP
 
-        foodLevel.textContent =
-        data.foodLevel + "%";
+        const feederStatus =
+            document.getElementById("feederStatus");
 
-        lastFed.textContent =
-        data.lastFed;
+        const foodLevel =
+            document.getElementById("foodLevel");
 
-        feedBtn.disabled = false;
-        cameraBtn.disabled = false;
-    }
-    catch(e)
-    {
-        feederStatus.textContent =
-        "Offline";
+        const lastFed =
+            document.getElementById("lastFed");
 
-        alert("Cannot connect to ESP32");
-    }
-};
+        const feedBtn =
+            document.getElementById("feed");
+
+        const cameraBtn =
+            document.getElementById("camera");
 
 
-feedBtn.onclick =
-async function()
-{
-    const response =
-    await fetch(`http://${ESP32_IP}/feed`,
-    {
-        method:"POST"
-    });
+        document.getElementById("connect").onclick =
+            async function () {
+                try {
+                    const response =
+                        await fetch(`http://${ESP32_IP}/status`);
 
-    if(response.ok)
-    {
-        lastFed.textContent =
-        "Just now";
+                    if (!response.ok)
+                        throw new Error();
 
-        alert("Feeding...");
-    }
-    else
-    {
-        alert("Feed failed");
-    }
-};
+                    const data =
+                        await response.json();
+
+                    feederStatus.textContent =
+                        "Online";
+
+                    foodLevel.textContent =
+                        data.foodLevel + "%";
+
+                    lastFed.textContent =
+                        data.lastFed;
+
+                    feedBtn.disabled = false;
+                    cameraBtn.disabled = false;
+                }
+                catch (e) {
+                    feederStatus.textContent =
+                        "Offline";
+
+                    alert("Cannot connect to ESP32");
+                }
+            };
 
 
-cameraBtn.onclick =
-async function()
-{
-    await fetch(`http://${ESP32_IP}/camera`,
-    {
-        method:"POST"
-    });
-};
+        feedBtn.onclick =
+            async function () {
+                const response =
+                    await fetch(`http://${ESP32_IP}/feed`,
+                        {
+                            method: "POST"
+                        });
 
-</script>
+                if (response.ok) {
+                    lastFed.textContent =
+                        "Just now";
+
+                    alert("Feeding...");
+                }
+                else {
+                    alert("Feed failed");
+                }
+            };
+
+
+        cameraBtn.onclick =
+            async function () {
+                await fetch(`http://${ESP32_IP}/camera`,
+                    {
+                        method: "POST"
+                    });
+            };
+
+    </script>
 
 </body>
+
 </html>
