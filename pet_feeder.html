@@ -53,6 +53,7 @@
     <script>
 
         const ESP32_IP = "192.168.1.6";      // Change to your ESP32 IP
+const ESP32_IP = "192.168.1.4";      // Change to your ESP32 IP
 
         const feederStatus =
             document.getElementById("feederStatus");
@@ -76,6 +77,10 @@
                     const response =
                         await fetch(`http://${ESP32_IP}/status`);
 
+        if(response.ok)
+            console.log("PetFeeder connected!");
+        else 
+            throw new Error();
                     if (!response.ok)
                         throw new Error();
 
@@ -84,7 +89,6 @@
 
                     feederStatus.textContent =
                         "Online";
-
                     foodLevel.textContent =
                         data.foodLevel + "%";
 
