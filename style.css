@@ -148,6 +148,69 @@ a {
     font-size: 0.5em;
 }
 
-#camera {
-    font-size: 0.5em;
+.info-box span {
+    transition: background-color 0.3s ease;
+    padding: 2px 6px;
+    border-radius: 4px;
 }
+
+/* Regular buttons */
+.btn {
+  padding: 6px 14px;
+  border: 1px solid #999;
+  border-radius: 4px;
+  background: white;
+  font-size: 14px;
+  cursor: pointer;
+}
+.btn-gray {
+  background: #e0e0e0;
+  color: #999;
+  cursor: not-allowed;
+  border-color: #ccc;
+}
+
+/* ----- YOUR NEW REFRESH BUTTON ----- */
+#reloadStatus {
+  /* Make it a square, but smaller */
+  width: 36px;       /* Small size */
+  height: 36px;
+  padding: 0;
+  
+  /* Black border and black icon */
+  border: 2px solid black;
+  border-radius: 10px;
+  background: transparent;
+  color: black;      /* Makes the emoji black */
+  font-size: 18px;   /* Smaller icon size */
+  
+  /* Center the icon */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  
+  /* Smooth hover effect */
+  transition: all 0.2s ease;
+}
+
+/* Hover effect */
+#reloadStatus:hover:not(:disabled) {
+  background: black;
+  color: white;      /* Icon turns white on hover */
+}
+
+/* If you need it disabled */
+#reloadStatus:disabled {
+  opacity: 0.5;
+  border-color: #999;
+  color: #999;
+  cursor: not-allowed;
+}
+.spinning {
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
