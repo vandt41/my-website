@@ -19,22 +19,22 @@
 
         <button id="connect">Connect</button>
         <button id="feed" disabled>Feed Now</button>
-
-        <button id="camera" disabled>Camera</button>
-
+        <br></br>
+        <button id="reloadStatus" disabled>⟳</button>
         <div class="info-box">
-            <p><strong>MCU:</strong> <span id="feederStatus">STM32F407VG-DISC1</span></p>
-
+            <p><strong>MCU:</strong> <span id="MCU">STM32F407VG-DISC1</span></p>
             <p><strong>ESP32:</strong> <span id="esp32Status">DISCONNECTED</span></p>            
-            <p><strong>FEEDER:</strong> <span id="servoStatus">OFFLINE</span></p>
+            <p><strong>Wifi:</strong> <span id="wifiStatus">DISCONNECTED</span></p>            
+            <p><strong>BLE:</strong> <span id="bleStatus">DISCONNECTED</span></p>            
+            <p><strong>FEEDER:</strong> <span id="feederStatus">OFFLINE</span></p>
             <p><strong>UART:</strong> <span id="uartStatus">NOT READY</span></p>
             <p><strong>LED:</strong> <span id="ledStatus">NOT READY</span></p>
             <p><strong>BUTTON:</strong> <span id="buttonStatus">NOT READY</span></p>
             <p><strong>RTC:</strong> <span id="rtcStatus">NOT READY</span></p>
-
             <p><strong>Food Level:</strong> <span id="foodLevel">Unknown</span></p>
             <p><strong>Last Fed:</strong> <span id="lastFed">Never</span></p>
             <p><strong>Next Feed:</strong> <span id="nextFeed">Never</span></p>
+            <p><strong>ERROR:</strong> <span id="errorStatus">OK</span></p>
 
 
         </div>
@@ -43,59 +43,152 @@
 
     <script>
 
-        const ESP32_IP = "192.168.1.6";      // Change to your ESP32 IP
+        const ESP32_IP = "192.168.1.4";      // Change to your ESP32 IP
+        const feedBtn =
+            document.getElementById("feed");
 
+        const reloadBtn =
+                document.getElementById("reloadStatus");
         const feederStatus =
             document.getElementById("feederStatus");
 
-        const foodLevel =
-            document.getElementById("foodLevel");
+        const uartStatus =
+            document.getElementById("uartStatus");
+
+        const ledStatus =
+            document.getElementById("ledStatus");
+
+        const buttonStatus =
+            document.getElementById("buttonStatus");
+
+        const rtcStatus =
+            document.getElementById("rtcStatus");
+
+        const wifiStatus =
+            document.getElementById("wifiStatus");
+
+        const bleStatus =
+            document.getElementById("bleStatus");
+
+        const errorStatus =
+            document.getElementById("errorStatus");
 
         const lastFed =
             document.getElementById("lastFed");
 
-        const feedBtn =
-            document.getElementById("feed");
+        // Function to fetch and update status
+        async function updateStatus() {
+    try {
+        const response =
+            await fetch(`http://${ESP32_IP}/status`);
 
-        const cameraBtn =
-            document.getElementById("camera");
+        if (!response.ok)
+            throw new Error();
 
+        const data =
+            await response.json();
 
+        // Update STM32 / feeder status
+        feederStatus.textContent =
+            data.feeder ? "READY" : "NOT READY";
+
+        uartStatus.textContent =
+            data.uart ? "READY" : "NOT READY";
+
+        ledStatus.textContent =
+            data.led ? "READY" : "NOT READY";
+
+        buttonStatus.textContent =
+            data.button ? "READY" : "NOT READY";
+
+        rtcStatus.textContent =
+            data.rtc ? "READY" : "NOT READY";
+
+        // Update ESP32 connection status
+        wifiStatus.textContent =
+            data.wifi ? data.ssid : "DISCONNECTED";
+
+        bleStatus.textContent =
+            data.ble ? "CONNECTED" : "DISCONNECTED";
+
+        // Error status
+        errorStatus.textContent =
+            data.error ? "ERROR" : "OK";
+
+        // Enable buttons after successful connection
+        feedBtn.disabled = false;
+        reloadBtn.disabled = false;
+
+        return true;
+
+    } catch (error) {
+
+        // ESP32 cannot be reached
+        feederStatus.textContent = "OFFLINE";
+        uartStatus.textContent = "NOT READY";
+        ledStatus.textContent = "NOT READY";
+        buttonStatus.textContent = "NOT READY";
+        rtcStatus.textContent = "NOT READY";
+
+        wifiStatus.textContent = "DISCONNECTED";
+        bleStatus.textContent = "DISCONNECTED";
+        errorStatus.textContent = "UNKNOWN";
+
+        feedBtn.disabled = true;
+        reloadBtn.disabled = true;
+
+        return false;
+    }
+}
+
+        // Connect button - initial connection
         document.getElementById("connect").onclick =
             async function () {
-                try {
-                    const response =
-                        await fetch(`http://${ESP32_IP}/status`);
-
-                    if (response.ok)
-                        console.log("PetFeeder connected!");
-                    else
-                        throw new Error();
-                    if (!response.ok)
-                        throw new Error();
-
-                    const data =
-                        await response.json();
-
-                    feederStatus.textContent =
-                        "Online";
-                    foodLevel.textContent =
-                        data.foodLevel + "%";
-
-                    lastFed.textContent =
-                        data.lastFed;
-
-                    feedBtn.disabled = false;
-                    cameraBtn.disabled = false;
-                }
-                catch (e) {
-                    feederStatus.textContent =
-                        "Offline";
-
+                const success = await updateStatus();
+                if (!success) {
                     alert("Cannot connect to ESP32");
+                } else {
+                    console.log("PetFeeder connected!");
+                    esp32Status.textContent = "CONNECTED";
+                    connect.disabled = true;
                 }
             };
 
+        // Reload button - refresh status
+        reloadBtn.onclick = async function () {
+
+// Disable button
+reloadBtn.disabled = true;
+
+// Start spinning animation
+reloadBtn.classList.add('spinning');
+
+// Update status
+const success = await updateStatus();
+
+// Stop spinning
+reloadBtn.classList.remove('spinning');
+
+// Re-enable button
+reloadBtn.disabled = false;
+
+if (success) {
+    // Visual feedback
+    const statusElements =
+        document.querySelectorAll('.info-box span');
+
+    statusElements.forEach(el => {
+        el.style.transition = 'background-color 0.3s';
+        el.style.backgroundColor = '#d4edda';
+
+        setTimeout(() => {
+            el.style.backgroundColor = 'transparent';
+        }, 500);
+    });
+} else {
+    alert("Failed to refresh status");
+}
+};
 
         feedBtn.onclick =
             async function () {
@@ -109,20 +202,14 @@
                     lastFed.textContent =
                         "Just now";
 
-                    alert("Feeding...");
+                        console.log("Feeding...");
+                    
+                    // Auto-refresh status after feeding
+                    setTimeout(updateStatus, 2000);
                 }
                 else {
                     alert("Feed failed");
                 }
-            };
-
-
-        cameraBtn.onclick =
-            async function () {
-                await fetch(`http://${ESP32_IP}/camera`,
-                    {
-                        method: "POST"
-                    });
             };
 
     </script>
