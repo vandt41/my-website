@@ -12,27 +12,19 @@
 <body>
 
     <a href="index.html">🏠 Home</a>
+    <br>
+    <a href="esp32BLE.html" >ESP32 BLE</a>
 
     <div class="page-container">
 
         <h2>🐾 Pet Feeder Control</h2>
-
-        <div class="control-buttons">
-            <button id="connect">Connect</button>
-            <button id="feed" disabled>Feed Now</button>
-        </div>
-
-        <br>
-
-        <button id="reloadStatus" disabled>⟳</button>
-
         <div class="dashboard">
-
-            <!-- LEFT: STATUS -->
+     
             <div class="info-box">
+                <button id="reloadStatus" disabled>⟳</button>
 
                 <p><strong>MCU:</strong>
-                    <span id="MCU">STM32F407VG-DISC1</span>
+                <span id="MCU">STM32F407VG-DISC1</span>
                 </p>
 
                 <p><strong>ESP32:</strong>
@@ -84,22 +76,26 @@
                 </p>
 
             </div>
-
-
-            <!-- RIGHT: 3D MODEL -->
+    
+            
             <div class="model-box">
-
-                <h3>Feeder Visualization</h3>
+                <button id="feed" disabled>Feed Now</button>
 
                 <div id="feeder-model"></div>
-
+                
                 <div class="model-status">
                     <span id="modelStatus">Ready</span>
                 </div>
-
             </div>
-
         </div>
+
+        <br>
+        
+
+
+            
+
+
 
     </div>
     <script type="importmap">

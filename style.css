@@ -226,16 +226,15 @@ a {
         transform: rotate(360deg);
     }
 }
-
 .dashboard {
     display: grid;
-    grid-template-columns: 400px 1fr;
+    grid-template-columns: 350px 1fr;
     gap: 40px;
 
-    width: 95%;
-    max-width: 1200px;
+    width: 100%; /* Changed from 95% */
+    max-width: 1100px;
 
-    margin-top: 20px;
+    margin: 20px 0 0; /* Removed auto, set left margin to 0 */
 }
 
 .info-box {
@@ -243,26 +242,22 @@ a {
 }
 
 .model-box {
-    min-height: 600px;
-
-    border: 1px solid #ccc;
-    border-radius: 12px;
-
-    background: #f5f5f5;
-
-    padding: 15px;
-}
-
-.model-box h3 {
-    margin-top: 0;
+    border: none;
+    padding: 0;
+    background: transparent;
+    box-shadow: none;
 }
 
 #feeder-model {
     width: 100%;
-    height: 520px;
+    height: 500px;
+    background: transparent;
 }
 
 .model-status {
     text-align: center;
     font-weight: bold;
+}
+.feed{
+    text-align: center;
 }
