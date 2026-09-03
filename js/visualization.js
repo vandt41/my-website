@@ -94,7 +94,7 @@ let mixer = null;
 let animations = [];
 
 loader.load(
-    "models/pet_feeder.glb",
+    "models/pet_feeder2.glb",
 
     function (gltf) {
 
