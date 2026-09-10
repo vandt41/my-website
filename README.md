@@ -2,4 +2,4 @@
 
 ![Website Demo](demo.gif)
 
-https://vandt41.github.io/my-website/about.html
+](https://vandt41.github.io/my-website/)
